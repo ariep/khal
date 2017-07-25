@@ -40,7 +40,7 @@ except ImportError:
     def setproctitle(x):
         pass
 
-
+click_log.basic_config('khal')
 logger = logging.getLogger(__name__)
 
 days_option = click.option('--days', default=None, type=int, help='How many days to include.')
@@ -236,17 +236,16 @@ def stringify_conf(conf):
 
 def _get_cli():
     @click.group()
-    @click_log.init('khal')
-    @click_log.simple_verbosity_option()
     @global_options
     @click.pass_context
+    @click_log.simple_verbosity_option('khal')
     def cli(ctx):
         # setting the process title so it looks nicer in ps
         # shows up as 'khal' under linux and as 'python: khal (python2.7)'
         # under FreeBSD, which is still nicer than the default
         setproctitle('khal')
         if ctx.logfilepath:
-            logger = logging.getLogger('khal')
+            logger = logging.getLogger(__name__)
             logger.handlers = [logging.FileHandler(ctx.logfilepath)]
 
     @cli.command()

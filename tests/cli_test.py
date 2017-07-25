@@ -23,8 +23,10 @@ class CustomCliRunner(CliRunner):
 
         super(CustomCliRunner, self).__init__(**kwargs)
 
-    def invoke(self, cli, args=None, *a, **kw):
-        args = ['-c', str(self.config_file)] + (args or [])
+    # TODO for now we need to insert -v DEBUG before -c /path/ to make
+    # click-log work properly
+    def invoke(self, cli, args=None, pre_config_arg=None, *a, **kw):
+        args = (pre_config_arg or []) + ['-c', str(self.config_file)] + (args or [])
         return super(CustomCliRunner, self).invoke(cli, args, *a, **kw)
 
 
@@ -787,12 +789,21 @@ def test_new(runner):
     assert result.output.startswith(str(runner.tmpdir))
 
 
+def test_debug(runner):
+    runner = runner()
+    result = runner.invoke(main_khal, ['printformats'], ['-v', 'debug'])
+    assert result.output.startswith('debug: khal 0.')
+    assert 'using the config file at' in result.output
+    assert 'debug: Using config:\ndebug: [calendars]' in result.output
+    assert not result.exception
+
+
 @freeze_time('2015-6-1 8:00')
 def test_new_interactive(runner):
     runner = runner(print_new='path')
 
     result = runner.invoke(
-        main_khal, 'new -i'.split(),
+        main_khal, 'new -i'.split(), None,
         'Another event\n13:00 17:00\n\nNone\nn\n'
     )
     assert not result.exception
@@ -804,7 +815,7 @@ def test_new_interactive_extensive(runner):
     runner = runner(print_new='path', default_calendar=False)
 
     result = runner.invoke(
-        main_khal, 'new -i 15:00 15:30'.split(),
+        main_khal, 'new -i 15:00 15:30'.split(), None,
         '?\ninvalid\ntwo\n'
         'Unicce Name\n'
         '\n'

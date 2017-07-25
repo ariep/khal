@@ -12,7 +12,7 @@ if sys.version_info < (3, 3):
 
 requirements = [
     'click>=3.2',
-    'click_log>=0.1.3',
+    'click_log>=0.2.0, <0.3.0',
     'icalendar',
     'urwid',
     'pyxdg',
@@ -26,7 +26,7 @@ requirements = [
 
 test_requirements = [
     'freezegun',
-    'vdirsyncer',
+    'vdirsyncer>=0.16.2',
 ]
 
 extra_requirements = {
