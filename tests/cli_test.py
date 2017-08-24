@@ -830,3 +830,34 @@ def test_new_interactive_extensive(runner):
     )
     assert not result.exception
     assert result.exit_code == 0
+
+
+def test_list_now(runner, tmpdir):
+    runner = runner()
+
+    xdg_config_home = tmpdir.join('.config')
+    config_file = xdg_config_home.join('khal').join('config')
+    config_file.write("""
+        [calendars]
+        [[one]]
+        path = {}
+        color = dark blue
+
+        [[two]]
+        path = {}
+        color = dark green
+
+        [[three]]
+        path = {}
+
+        [locale]
+        longdateformat = %a %Y-%m-%d
+        dateformat = %Y-%m-%d
+    """.format(
+            tmpdir.join('calendar'),
+            tmpdir.join('calendar2'),
+            tmpdir.join('calendar3'),
+        ))
+
+    result = runner.invoke(main_khal, ['list', 'now'])
+    assert not result.exception
